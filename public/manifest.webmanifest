@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "PlantPal AI",
+  "short_name": "PlantPal",
+  "description": "Everyone, Anywhere Can Plant — your AI gardening companion.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fbfcf8",
+  "theme_color": "#087a43",
+  "categories": ["lifestyle", "education", "utilities"],
+  "icons": [
+    {"src": "/plantpal-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"},
+    {"src": "/plantpal-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable"}
+  ]
+}
