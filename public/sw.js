@@ -1,5 +1,5 @@
 const CACHE_NAME = "plantpal-shell-v1";
-const APP_SHELL = ["/", "/offline.html", "/manifest.webmanifest", "/plantpal-icon.svg"];
+const APP_SHELL = ["/", "/offline.html", "/manifest.webmanifest", "/plantpal-logo.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
