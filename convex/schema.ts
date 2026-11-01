@@ -1,0 +1,2 @@
+import {defineSchema,defineTable} from "convex/server"; import {v} from "convex/values";
+export default defineSchema({plants:defineTable({name:v.string(),species:v.optional(v.string()),location:v.optional(v.string()),plantedAt:v.optional(v.number()),notes:v.optional(v.string()),imageStorageId:v.optional(v.id("_storage")),createdAt:v.number()}).index("by_created",["createdAt"]),careTasks:defineTable({plantId:v.optional(v.id("plants")),title:v.string(),dueAt:v.number(),completed:v.boolean(),category:v.string()}).index("by_due",["dueAt"])});
