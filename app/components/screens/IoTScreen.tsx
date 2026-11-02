@@ -7,7 +7,7 @@ import { api } from "../../../convex/_generated/api";
 import { Activity, Cpu, MapPin, Plus, Thermometer, Droplets, Wind, Wifi, WifiOff } from "lucide-react";
 import { Header } from "../ui/Header";
 import { Card } from "../ui/Card";
-import type { Screen } from "../shared/types";
+import { SCREEN_TITLES, type Screen } from "../shared/types";
 
 export function IoTScreen({ screen, go, back }: { screen: Screen; go: (s: Screen) => void; back: () => void }) {
   const { isLoaded, isSignedIn } = useUser();
@@ -51,7 +51,7 @@ export function IoTScreen({ screen, go, back }: { screen: Screen; go: (s: Screen
   }
 
   return <>
-    <Header backable screen={screen} go={go} back={back} cartCount={0} title="IoT Field Monitor" />
+    <Header backable screen={screen} go={go} back={back} cartCount={0} title={SCREEN_TITLES} />
     <main className="flex-1 space-y-4 px-4 pb-6 pt-4">
       <div><h1 className="text-lg font-bold">Field sensor dashboard</h1><p className="text-xs text-gray-500">Monitor soil and local air conditions from your ESP32-S3.</p></div>
       {!isLoaded ? <p className="text-sm text-gray-500">Loading account…</p> : !isSignedIn ? <Card className="p-4 text-sm">Sign in to register fields and view your sensor data.</Card> : <>
