@@ -19,7 +19,7 @@ export function CareScreen({screen, go, back, careTab, setCareTab, plantName}:{s
   const plantInfo=useQuery(api.catalogue.plantByName,{name:plantName});
   const seedPlants=useMutation(api.catalogue.seedStarterPlants);
   useEffect(()=>{seedPlants({}).catch(()=>{});},[seedPlants]);
-  const selected=plants?.find(p=>p.name.toLowerCase()===plantName.toLowerCase()) ?? plants?.[0];
+  const selected=plants?.find((p: any)=>p.name.toLowerCase()===plantName.toLowerCase()) ?? plants?.[0];
   return (
     <>
       <Header backable screen={screen} go={go} back={back} cartCount={0} title={SCREEN_TITLES} />
