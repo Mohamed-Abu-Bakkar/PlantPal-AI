@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
       "Use reliable general horticultural knowledge for the plant and the supplied live weather and five-day forecast. Account for local date, likely season, heat, humidity and rain. Weather is short-term context, not long-term climate.",
       "Identify ambiguity in common names and use scientific name/identification notes when provided. Never invent soil test results or pretend to know the exact cultivar.",
       "For irrigation, specify suitable method, a practical frequency/rule based on soil moisture and weather, and technique. Avoid rigid watering schedules when conditions vary.",
-      "For fertilizer, specify suitable fertilizer category/type, cautious NPK guidance only if defensible, growth-stage frequency, safe application method, and an organic alternative. Do not prescribe a precise dose without product concentration, pot/bed size and soil test; say to follow label dosage.",
-      "Return ONLY JSON with this shape: {commonName:string,scientificName:string,summary:string,growingConditions:[{label:string,detail:string}],irrigation:{method:string,frequency:string,amount:string,seasonalAdjustment:string},fertilizer:{type:string,npk:string,frequency:string,application:string,organicAlternative:string},recommendations:string[],cautions:string[]}.",
+      "For fertilizer, name a specific fertilizer formulation or commonly available product category the gardener can look for (not just "organic fertilizer"), give cautious NPK guidance only if defensible, growth-stage frequency, safe application method, and an organic alternative. If exact formulation depends on crop stage or soil test, give a sensible general option and explain the condition. Never invent a brand or exact dosage. Do not prescribe a precise dose without product concentration, pot/bed size and soil test; say to follow label dosage.",
+      "Return ONLY JSON with this shape: {commonName:string,scientificName:string,summary:string,growingConditions:[{label:string,detail:string}],irrigation:{method:string,frequency:string,amount:string,seasonalAdjustment:string},fertilizer:{type:string,specificProduct:string,npk:string,frequency:string,application:string,organicAlternative:string},recommendations:string[],cautions:string[]}.",
       "Provide 4-6 growing conditions, 3-5 recommendations and any important uncertainty/cautions.",
       "Plant: "+plantName, "Scientific name: "+scientificName, "Existing identification notes: "+notes,
       "Local date: "+new Date().toISOString(), "Weather context: "+JSON.stringify(climate)
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     if(!match)return NextResponse.json({error:"The care service returned an unreadable result. Please try again."},{status:502});
     let result:any;
     try{result=JSON.parse(match[0]);}catch{return NextResponse.json({error:"The care service returned invalid details. Please try again."},{status:502});}
-    if(!result.irrigation?.method||!result.fertilizer?.type||!Array.isArray(result.growingConditions)||!Array.isArray(result.recommendations))return NextResponse.json({error:"The generated care profile was incomplete. Please try again."},{status:502});
+    if(!result.irrigation?.method||!result.fertilizer?.type||!result.fertilizer?.specificProduct||!Array.isArray(result.growingConditions)||!Array.isArray(result.recommendations))return NextResponse.json({error:"The generated care profile was incomplete. Please try again."},{status:502});
     return NextResponse.json({result,climate,contextNote:"Generated using the plant identification details, current local weather and a short-term forecast. Recommendations are estimates; verify soil and product-label requirements."});
   } catch { return NextResponse.json({error:"Unable to generate the local plant care profile."},{status:500}); }
 }
