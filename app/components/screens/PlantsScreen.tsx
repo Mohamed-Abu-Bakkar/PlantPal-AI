@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { Plus, ChevronRight, Trash2, Leaf, Loader2 } from "lucide-react";
 import { Header } from "../ui/Header";
 import { Card } from "../ui/Card";
@@ -40,7 +41,7 @@ export function PlantsScreen({ screen, go, back, plantName, setPlantName }: { sc
     }
   }
 
-  async function deletePlant(id: typeof plants extends (infer T)[] | undefined ? T extends { _id: infer I } ? I : never : never) {
+  async function deletePlant(id: Id<"plants">) {
     try {
       await removePlant({ id });
     } catch (err) {
