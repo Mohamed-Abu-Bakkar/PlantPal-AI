@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -15,6 +16,9 @@ export function CareScreen({screen, go, back, careTab, setCareTab, plantName}:{s
   const {isLoaded,isSignedIn}=useUser();
   const plants=useQuery(api.plants.list,isLoaded&&isSignedIn?{}:"skip");
   const tasks=useQuery(api.plants.tasks,isLoaded&&isSignedIn?{}:"skip");
+  const plantInfo=useQuery(api.catalogue.plantByName,{name:plantName});
+  const seedPlants=useMutation(api.catalogue.seedStarterPlants);
+  useEffect(()=>{seedPlants({}).catch(()=>{});},[seedPlants]);
   const selected=plants?.find(p=>p.name.toLowerCase()===plantName.toLowerCase()) ?? plants?.[0];
   return (
     <>
@@ -22,7 +26,7 @@ export function CareScreen({screen, go, back, careTab, setCareTab, plantName}:{s
       <main className="flex-1 px-3 pb-6 pt-3">
         <div className="mb-3 flex gap-2 overflow-x-auto">{["Overview", "Care Schedule", "Growth"].map((t) => <Pill key={t} active={careTab === t} onClick={() => setCareTab(t)}>{t}</Pill>)}</div>
         {careTab === "Overview" ? (
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden">\n            {plantInfo ? <div className="border-b border-gray-100 p-3"><b className="text-sm">{plantInfo.emoji} {plantInfo.commonName}</b><p className="mt-1 text-[11px] text-gray-500 italic">{plantInfo.scientificName}</p><p className="mt-2 text-xs text-gray-600">{plantInfo.summary}</p><div className="mt-3 space-y-2 text-xs"><p><b>Sunlight:</b> {plantInfo.sunlight}</p><p><b>Watering:</b> {plantInfo.watering}</p><p><b>Soil:</b> {plantInfo.soil}</p><p><b>Temperature:</b> {plantInfo.temperature}</p></div></div> : <p className="border-b border-gray-100 p-3 text-[11px] text-gray-500">{plantInfo === null ? "No reference profile found for this plant yet. Ask PlantPal for tailored guidance." : "Loading plant reference…"}</p>}
             {[[Droplets, "Watering", "Check soil moisture before watering"], [Sprout, "Fertilizer", "Follow the needs of your selected species"], [Sun, "Sunlight", "Check species-specific light requirements"], [Activity, "Soil", "Check drainage and soil condition"], [ThermometerSun, "Temperature", "Use local weather as a guide"]].map((item: any) => { const [I,t,d]=item; return <Row key={t} icon={I} title={t} desc={d} onClick={() => go("assistant")} />; })}
             <p className="border-t border-gray-100 p-3 text-[11px] text-gray-500">{selected ? "Selected garden plant: "+selected.name : "Add a plant to personalize care guidance."}</p>
           </Card>
