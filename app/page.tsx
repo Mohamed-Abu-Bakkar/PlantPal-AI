@@ -1,74 +1,132 @@
 "use client";
-import {useEffect,useRef,useState} from "react";
-import {ArrowLeft,ArrowRight,Camera,Image as ImageIcon,Leaf,House,Flower2,Bell,ShoppingCart,MapPin,CloudSun,Sun,Droplets,Wind,ScanLine,CalendarDays,MessageCircle,Plus,Search,Sparkles,Heart,CheckCircle2,ChevronRight,Menu,X,Lightbulb,Sprout,Activity, ThermometerSun,ShoppingBag,CloudRain,Clock,Settings,Upload,Trash2} from "lucide-react";
+import {useEffect, useState} from "react";
+import {Splash} from "./components/ui/Splash";
+import {HomeScreen} from "./components/screens/HomeScreen";
+import {ScannerScreen} from "./components/screens/ScannerScreen";
+import {ResultScreen} from "./components/screens/ResultScreen";
+import {CareScreen} from "./components/screens/CareScreen";
+import {WeatherScreen} from "./components/screens/WeatherScreen";
+import {HealthScreen} from "./components/screens/HealthScreen";
+import {SuitabilityScreen} from "./components/screens/SuitabilityScreen";
+import {StoreScreen} from "./components/screens/StoreScreen";
+import {PlantsScreen} from "./components/screens/PlantsScreen";
+import {AlertsScreen} from "./components/screens/AlertsScreen";
+import {AssistantScreen} from "./components/screens/AssistantScreen";
+import {DetailsScreen} from "./components/screens/DetailsScreen";
+import type {Screen} from "./components/shared/types";
 
-type Screen="home"|"scanner"|"result"|"care"|"weather"|"health"|"suitability"|"store"|"plants"|"alerts"|"assistant"|"details";
-const green="#087a43";
-function Photo({label="Plant photo",height="h-40",emoji="🌱"}:{label?:string;height?:string;emoji?:string}){return <div className={`relative ${height} w-full overflow-hidden rounded-2xl border border-[#e4eee4] bg-gradient-to-br from-[#e7f3e6] via-[#f4f7eb] to-[#d4e8d2] flex flex-col items-center justify-center text-[#37754b]`}><div className="absolute -left-5 -top-6 h-28 w-28 rounded-full bg-white/50 blur-xl"/><div className="text-5xl relative">{emoji}</div><span className="relative mt-2 rounded-full bg-white/80 px-3 py-1 text-[10px] font-medium text-[#477454]">PHOTO PLACEHOLDER · {label}</span></div>}
-function Pill({children,active=false,onClick}:{children:React.ReactNode;active?:boolean;onClick?:()=>void}){return <button onClick={onClick} className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold ${active?"bg-[#087a43] text-white":"bg-[#f2f5f0] text-[#68766b]"}`}>{children}</button>}
-function Row({icon:Icon,title,desc,right="›",onClick}:{icon:any;title:string;desc:string;right?:string;onClick?:()=>void}){return <button onClick={onClick} className="flex w-full items-center gap-3 border-b border-[#edf1eb] px-3 py-3 text-left last:border-0"><div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f1f7ef] text-[#16834a]"><Icon size={21}/></div><div className="min-w-0 flex-1"><p className="text-[13px] font-semibold text-[#17251c]">{title}</p><p className="mt-0.5 text-[11px] text-[#849087]">{desc}</p></div><span className="text-xl text-[#9aa69d]">{right}</span></button>}
-function Card({children,className=""}:{children:React.ReactNode;className?:string}){return <div className={`rounded-2xl border border-[#e8eee6] bg-white shadow-[0_3px_14px_rgba(30,70,35,.045)] ${className}`}>{children}</div>}
-export default function Home(){
- const videoRef=useRef<HTMLVideoElement|null>(null),cameraStreamRef=useRef<MediaStream|null>(null);
- const [cameraError,setCameraError]=useState("");
- const [showSplash,setShowSplash]=useState(true);
- useEffect(()=>{const timer=window.setTimeout(()=>setShowSplash(false),2600);return()=>window.clearTimeout(timer);},[]);
- const [screen,setScreen]=useState<Screen>("home"),[previous,setPrevious]=useState<Screen>("home"),[careTab,setCareTab]=useState("Overview"),[storeTab,setStoreTab]=useState("Fertilizers"),[search,setSearch]=useState("Mango"),[plantName,setPlantName]=useState("Tomato"),[added,setAdded]=useState(false),[chat,setChat]=useState(""),[messages,setMessages]=useState(["Hello! I’m your PlantPal AI assistant. Ask me anything about your garden."]),[selectedPhoto,setSelectedPhoto]=useState(""),[photoData,setPhotoData]=useState(""),[aiLoading,setAiLoading]=useState(false),[weather,setWeather]=useState<any>(null),[weatherLoading,setWeatherLoading]=useState(false),[serviceError,setServiceError]=useState(""),[screenHistory,setScreenHistory]=useState<Screen[]>([]),[identifyResult,setIdentifyResult]=useState<any>(null),[cartCount,setCartCount]=useState(0);
- useEffect(()=>{
-  if(screen!=="scanner"||photoData)return;
-  let cancelled=false;
-  const startCamera=async()=>{
-   try{
-    if(!navigator.mediaDevices?.getUserMedia)throw new Error("Live camera is unavailable in this browser. Use the gallery button to upload a photo.");
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false});
-    if(cancelled){stream.getTracks().forEach(track=>track.stop());return;}
-    cameraStreamRef.current=stream;
-    if(videoRef.current){videoRef.current.srcObject=stream;await videoRef.current.play().catch(()=>{});}
-    setCameraError("");
-   }catch(error:any){
-    if(!cancelled)setCameraError(error?.name==="NotAllowedError"?"Camera permission was denied. Allow camera access in your browser settings, or upload from your gallery.":error?.message||"Could not open the camera. Use the gallery button instead.");
-   }
+export default function Home() {
+  const [showSplash, setShowSplash] = useState(true);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShowSplash(false), 2600);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const [screen, setScreen] = useState<Screen>("home");
+  const [previous, setPrevious] = useState<Screen>("home");
+  const [careTab, setCareTab] = useState("Overview");
+  const [storeTab, setStoreTab] = useState("Fertilizers");
+  const [search, setSearch] = useState("Mango");
+  const [plantName, setPlantName] = useState("Tomato");
+  const [added, setAdded] = useState(false);
+  const [chat, setChat] = useState("");
+  const [messages, setMessages] = useState(["Hello! I’m your PlantPal AI assistant. Ask me anything about your garden."]);
+  const [photoData, setPhotoData] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [weather, setWeather] = useState<any>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [serviceError, setServiceError] = useState("");
+  const [screenHistory, setScreenHistory] = useState<Screen[]>([]);
+  const [identifyResult, setIdentifyResult] = useState<any>(null);
+  const [cartCount, setCartCount] = useState(0);
+
+  const go = (s: Screen) => {
+    if (s === screen) return;
+    setScreenHistory((h) => [...h, screen]);
+    setPrevious(screen);
+    setScreen(s);
   };
-  startCamera();
-  return ()=>{cancelled=true;if(cameraStreamRef.current){cameraStreamRef.current.getTracks().forEach(track=>track.stop());cameraStreamRef.current=null;}};
- },[screen,photoData]);
- const captureCameraPhoto=()=>{
-  const video=videoRef.current;
-  if(!video||!video.videoWidth){document.getElementById("plant-camera-input")?.click();return;}
-  const canvas=document.createElement("canvas");
-  canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-  const context=canvas.getContext("2d");
-  if(!context){setCameraError("Could not capture the image. Please use the gallery button.");return;}
-  context.drawImage(video,0,0,canvas.width,canvas.height);
-  setPhotoData(canvas.toDataURL("image/jpeg",0.88));
-  setSelectedPhoto("Camera capture");setCameraError("");
- };
- const go=(s:Screen)=>{if(s===screen)return;setScreenHistory(h=>[...h,screen]);setPrevious(screen);setScreen(s)};
- const readPlantPhoto=(file?:File)=>{if(!file)return;setSelectedPhoto(file.name);const reader=new FileReader();reader.onload=()=>setPhotoData(String(reader.result||""));reader.readAsDataURL(file);};
- const identifyPhoto=async()=>{if(!photoData){setServiceError("Choose a plant photo first.");return;}setAiLoading(true);setServiceError("");try{const r=await fetch("/api/identify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:photoData})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Identification failed");const x=d.result;setIdentifyResult(typeof x==="object"?x:null);setPlantName(typeof x==="object"?(x.commonName||"Identified plant"):String(x).slice(0,60));go("result");}catch(e:any){setServiceError(e.message||"Identification failed.");}finally{setAiLoading(false);}};
- const sendChat=async(e:React.FormEvent)=>{e.preventDefault();const prompt=chat.trim();if(!prompt||aiLoading)return;const history=messages.slice(1).map((content,i)=>({role:i%2===0?"user":"assistant",content}));history.push({role:"user",content:prompt});setMessages([...messages,prompt]);setChat("");setAiLoading(true);setServiceError("");try{const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:history})});const d=await r.json();if(!r.ok)throw new Error(d.error||"AI request failed");setMessages(m=>[...m,d.reply]);}catch(e:any){setServiceError(e.message||"AI request failed.");}finally{setAiLoading(false);}};
- const loadWeather=async()=>{setWeatherLoading(true);setServiceError("");try{const pos=await new Promise<GeolocationPosition>((resolve,reject)=>navigator.geolocation?navigator.geolocation.getCurrentPosition(resolve,reject,{timeout:10000}):reject(new Error("Location is unavailable.")));const r=await fetch("/api/weather?lat="+pos.coords.latitude+"&lon="+pos.coords.longitude);const d=await r.json();if(!r.ok)throw new Error(d.error||"Weather request failed");setWeather(d);}catch(e:any){setServiceError(e.message||"Weather request failed.");}finally{setWeatherLoading(false);}};
 
- const back=()=>{const prior=screenHistory[screenHistory.length-1]||"home";setScreenHistory(h=>h.slice(0,-1));setScreen(prior);};
- const title:Record<Screen,string>={home:"PlantPal AI",scanner:"Identify Plant",result:"Plant Identification",care:"Care Guide",weather:"Location & Weather",health:"Plant Health",suitability:"Plant Suitability",store:"Buy Supplies",plants:"My Plants",alerts:"Alerts",assistant:"AI Assistant",details:"Plant Details"};
- const products=[["Organic Compost","Natural nutrient-rich compost","₹ 250","🟫"],["Urea (Nitrogen Fertilizer)","For leafy growth","₹ 180","🟩"],["Neem Oil (Organic Pesticide)","For fungal diseases","₹ 150","🧴"],["Tomato Seeds (Hybrid)","High yield variety","₹ 120","🍅"]];
- const header=(backable=true)=><header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-[#e9eee7] bg-[#fbfcf8]/95 px-4 backdrop-blur"><button onClick={()=>backable?back():go("home")} className="grid h-9 w-8 place-items-center text-[#193b29]">{backable?<ArrowLeft size={21}/>:<Menu size={21}/>}</button><b className="text-[15px] text-[#17271d]">{title[screen]}</b><button onClick={()=>screen==="store"?alert(cartCount?`Your garden cart has ${cartCount} item(s). Checkout is not enabled yet.`:"Your garden cart is empty."):go("alerts")} aria-label={screen==="store"?"View garden cart":"Open alerts"} className="relative grid h-9 w-8 place-items-center text-[#164c2e]">{screen==="store"?<ShoppingCart size={20}/>:<Bell size={20}/>}{screen==="store"&&cartCount>0&&<span className="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-[9px] text-white">{cartCount}</span>}</button></header>;
- const bottom=()=> <nav className="sticky bottom-0 z-20 grid h-[66px] grid-cols-4 border-t border-[#e7eee5] bg-white/95 px-2 backdrop-blur">{[{s:"home" as Screen,l:"Home",i:House},{s:"plants" as Screen,l:"My Plants",i:Flower2},{s:"alerts" as Screen,l:"Alerts",i:Bell},{s:"store" as Screen,l:"Store",i:ShoppingCart}].map(x=><button key={x.s} onClick={()=>go(x.s)} className={`flex flex-col items-center justify-center gap-1 text-[10px] ${screen===x.s?"font-bold text-[#087a43]":"text-[#8a968e]"}`}><x.i size={19}/>{x.l}</button>)}</nav>;
- const tile=(Icon:any,label:string,s:Screen,color="text-[#087a43]")=><button onClick={()=>go(s)} className="flex min-h-[78px] flex-col items-center justify-center gap-2 rounded-2xl border border-[#e7eee5] bg-white p-2 shadow-[0_3px_12px_rgba(35,76,38,.05)]"><Icon size={23} className={color}/><span className="text-[11px] font-semibold text-[#27362c]">{label}</span></button>;
- if(showSplash)return <main className="fixed inset-0 z-[100] min-h-[100svh] overflow-hidden bg-[#f2f6ed]"><div className="absolute inset-0 bg-cover bg-center" style={{backgroundImage:"url('/splash-bg.png')"}}/><div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/10"/><div className="relative z-10 flex h-full min-h-[100svh] flex-col items-center px-5 text-center"><div className="mt-[18vh] flex flex-col items-center"><img src="/plantpal-logo.png" alt="PlantPal AI logo" className="mb-3 h-[112px] w-[112px] object-contain drop-shadow-[0_2px_8px_rgba(0,80,30,.12)]"/><h1 className="text-[34px] font-extrabold tracking-tight text-[#075d35] drop-shadow-[0_1px_2px_rgba(255,255,255,.7)]">PlantPal AI</h1><p className="mt-1 text-[17px] font-medium leading-6 text-[#087a43]">“Everyone, Anywhere<br/>Can Plant.”</p></div></div></main>;
- return <div className="min-h-screen bg-[#edf2eb] text-[#18251c]">
- <div className="mx-auto flex min-h-screen max-w-[430px] flex-col bg-[#fbfcf8] shadow-[0_0_40px_rgba(30,65,35,.1)]">
- {screen==="home"&&<><header className="flex h-14 items-center justify-between px-4"><button onClick={()=>go("plants")}><Menu/></button><b className="text-[16px]">PlantPal AI</b><button onClick={()=>go("alerts")}><Bell/></button></header><main className="flex-1 space-y-5 px-4 pb-5"><div className="pt-2"><h1 className="text-[21px] font-bold">Good Morning!</h1><p className="mt-1 text-xs text-[#647568]">Let’s take care of your plants today.</p></div><div className="grid grid-cols-3 gap-3">{tile(Camera,"Identify Plant","scanner")}{tile(Leaf,"My Plants","plants")}{tile(MapPin,"Check Suitability","suitability")}{tile(CloudSun,"Weather","weather","text-amber-500")}{tile(ShoppingCart,"Buy Supplies","store")}{tile(Sparkles,"AI Assistant","assistant")}</div><div><div className="mb-3 flex items-center justify-between"><h2 className="font-bold">My Plants</h2><button onClick={()=>go("plants")} className="text-xs font-semibold text-[#087a43]">See All →</button></div><div className="grid grid-cols-2 gap-3"><button onClick={()=>{setPlantName("Tomato");go("care")}} className="overflow-hidden rounded-2xl border border-[#e5ece3] bg-white text-left shadow-sm"><img src="/tomato-plant.png" alt="Tomato plant" className="h-24 w-full object-cover"/><div className="p-3"><b className="text-xs">Tomato</b><p className="text-[10px] text-gray-500">Flowering Stage</p><p className="mt-1 text-[10px] font-semibold text-green-700">● Healthy</p></div></button><button onClick={()=>{setPlantName("Spinach");go("care")}} className="overflow-hidden rounded-2xl border border-[#e5ece3] bg-white text-left shadow-sm"><img src="/spinach-palnt.png" alt="Spinach plant" className="h-24 w-full object-cover"/><div className="p-3"><b className="text-xs">Spinach</b><p className="text-[10px] text-gray-500">Vegetative Stage</p><p className="mt-1 text-[10px] font-semibold text-green-700">● Healthy</p></div></button></div></div><Card className="p-4"><div className="flex items-center justify-between"><b className="text-sm">Today’s garden tip</b><Sparkles size={18} className="text-[#13864a]"/></div><p className="mt-2 text-xs leading-5 text-[#68766b]">Check the soil before watering. The top layer drying out is a useful first clue, but each plant has different needs.</p><button onClick={()=>go("assistant")} className="mt-3 text-xs font-bold text-[#087a43]">Ask PlantPal →</button></Card></main>{bottom()}</>}
- {screen==="scanner"&&<>{header()}<main className="flex-1 px-4 pb-6 pt-4"><div className="relative h-[390px] w-full overflow-hidden rounded-2xl bg-[#15251b]">{photoData?<img src={photoData} alt="Captured plant photo" className="h-full w-full object-cover"/>:<><video ref={videoRef} autoPlay muted playsInline className="h-full w-full object-cover"/>{cameraError&&<div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#e7f3e6] px-6 text-center text-[#37754b]"><Camera size={42}/><p className="text-xs">{cameraError}</p></div>}</>}<div className="pointer-events-none absolute inset-6 grid grid-cols-2 grid-rows-2"><span className="border-l-[3px] border-t-[3px] border-white rounded-tl-xl"/><span className="justify-self-end w-8 border-r-[3px] border-t-[3px] border-white rounded-tr-xl"/><span className="self-end border-l-[3px] border-b-[3px] border-white rounded-bl-xl"/><span className="w-8 justify-self-end self-end border-r-[3px] border-b-[3px] border-white rounded-br-xl"/></div></div><div className="mt-5 flex items-center justify-center gap-8"><button onClick={()=>photoData?(setPhotoData(""),setSelectedPhoto("")):captureCameraPhoto()} aria-label={photoData?"Retake photo":"Capture photo"} className="grid h-[68px] w-[68px] place-items-center rounded-full border-[5px] border-[#dce9df] bg-white shadow-md"><span className="h-12 w-12 rounded-full bg-[#087a43]"/></button><input id="plant-camera-input" type="file" accept="image/*" capture="environment" className="hidden" onChange={e=>readPlantPhoto(e.target.files?.[0])}/><label className="grid h-12 w-12 cursor-pointer place-items-center rounded-xl bg-[#edf5ed] text-[#087a43]"><ImageIcon/><input type="file" accept="image/*" className="hidden" onChange={e=>readPlantPhoto(e.target.files?.[0])}/></label></div><p className="mt-5 text-center text-xs text-[#68766b]">{selectedPhoto?`Photo ready: ${selectedPhoto} · Tap shutter to retake`:"Live camera preview · Tap the green shutter to capture, or use the gallery icon."}</p><button onClick={identifyPhoto} disabled={aiLoading} className="mt-5 w-full rounded-xl bg-[#087a43] py-3 text-sm font-bold text-white">{aiLoading?"Identifying…":"Identify Plant"}</button>{serviceError&&<p className="mt-2 text-center text-xs text-red-600">{serviceError}</p>}{selectedPhoto&&<p className="mt-2 text-center text-[10px] text-gray-500">Selected: {selectedPhoto}</p>}</main></>}
- {screen==="result"&&<>{header()}<main className="flex-1 space-y-4 px-4 pb-6 pt-4">{photoData?<img src={photoData} alt="Uploaded plant" className="h-56 w-full rounded-2xl object-cover"/>:<Photo label="Identified plant image" height="h-56" emoji="🍅"/>}<div className="flex items-start justify-between"><div><h1 className="text-xl font-bold">{plantName}</h1><p className="mt-1 text-xs italic text-gray-500">{identifyResult?.scientificName||"Scientific name not confirmed"}</p></div><div className="rounded-xl bg-[#e9f5e9] px-3 py-2 text-center"><b className="text-lg text-[#087a43]">{identifyResult?.confidence!=null?identifyResult.confidence+"%":"—"}</b><p className="text-[9px] text-gray-500">AI confidence</p></div></div><div className="grid grid-cols-2 gap-3"><Card className="flex items-center gap-2 p-3"><Leaf className="text-green-600"/><div><p className="text-[10px] text-gray-500">Growth Stage</p><b className="text-xs">Flowering</b></div></Card><Card className="flex items-center gap-2 p-3"><Heart className="text-green-600"/><div><p className="text-[10px] text-gray-500">Health Condition</p><b className="text-xs">Healthy</b></div></Card></div><Card className="p-4"><b className="text-sm">About this plant</b><p className="mt-2 text-xs leading-5 text-gray-600">{identifyResult?.visibleClues?.join("; ")||"Identification is an AI estimate. Compare the visible features with a trusted local plant guide."}</p>{identifyResult?.caveats?.length>0&&<p className="mt-2 text-xs text-amber-700">{identifyResult.caveats.join(" ")}</p>}</Card><div className="grid grid-cols-2 gap-3"><button onClick={()=>go("details")} className="rounded-xl bg-[#e0f0e2] py-3 text-xs font-bold text-[#087a43]">View Details</button><button onClick={()=>{setAdded(true);go("care")}} className="rounded-xl bg-[#087a43] py-3 text-xs font-bold text-white">{added?"Added to My Plants":"Add to My Plants"}</button></div></main></>}
- {screen==="care"&&<>{header()}<main className="flex-1 px-3 pb-6 pt-3"><div className="mb-3 flex gap-2 overflow-x-auto">{["Overview","Care Schedule","Growth"].map(t=><Pill key={t} active={careTab===t} onClick={()=>setCareTab(t)}>{t}</Pill>)}</div>{careTab==="Overview"?<Card className="overflow-hidden">{[[Droplets,"Watering","Every 3–4 days"],[Sprout,"Fertilizer","Apply in 2 days"],[Sun,"Sunlight","6–8 hours daily"],[Activity,"Soil","Well-drained, pH 6.0–6.8"],[ThermometerSun,"Temperature","Ideal: 20–30°C"],[Sprout,"Expected Harvest","In 40–45 days"]].map(([I,t,d]:any)=><Row key={t} icon={I} title={t} desc={d} onClick={()=>go("assistant")}/>)}</Card>:careTab==="Care Schedule"?<Card className="p-4"><b className="text-sm">Upcoming care schedule</b>{["Today · Check soil moisture","In 2 days · Fertilizer check","In 3 days · Water if soil is dry","Next week · Inspect leaves"].map(t=><div className="mt-4 flex gap-3 text-xs"><CalendarDays className="text-green-600" size={18}/>{t}</div>)}</Card>:<Card className="p-4"><b className="text-sm">Growth journey</b><Photo label="Growth stage photo" height="h-40" emoji="🌱"/><p className="mt-3 text-xs text-gray-600">Current stage: Flowering</p><p className="mt-1 text-xs text-gray-600">Estimated harvest: 40–45 days, depending on variety and conditions.</p></Card>}<Card className="mt-3 flex items-center gap-3 bg-[#e8f5e9] p-4"><span className="text-2xl">🌼</span><div className="flex-1"><b className="text-xs">Flowering expected soon</b><p className="text-[11px] text-gray-600">Keep monitoring plant health and soil moisture.</p></div><ChevronRight className="text-green-700"/></Card></main></>}
- {screen==="weather"&&<>{header()}<main className="flex-1 space-y-4 px-4 pb-6 pt-4">{serviceError&&<p className="rounded-lg bg-red-50 p-3 text-xs text-red-700">{serviceError}</p>}<Card className="flex gap-3 p-4"><div className="grid h-14 w-14 place-items-center rounded-2xl bg-[#e7f5e8] text-green-700"><MapPin size={28}/></div><div className="min-w-0 flex-1"><b className="text-sm">{weather?.location?weather.location+", "+(weather.country||""):"Your location"}</b><p className="text-xs text-gray-500">{weather?"Live weather loaded":"Allow location access for local weather"}</p><p className="text-[10px] text-gray-500">Location is requested only when you refresh.</p></div><button onClick={loadWeather} disabled={weatherLoading} className="rounded-lg bg-[#087a43] px-3 py-2 text-[10px] font-bold text-white">{weatherLoading?"Loading…":"Refresh"}</button></Card><div className="flex justify-between"><b className="text-sm">Current Weather</b><span className="text-[10px] text-gray-400">Current conditions</span></div><Card className="p-4"><div className="flex items-center gap-4"><div className="flex-1 text-center"><Sun size={34} className="mx-auto text-amber-500"/><b className="mt-2 block text-2xl">{weather?Math.round(weather.temperatureC)+"°C":"--°C"}</b><p className="text-xs capitalize text-gray-500">{weather?.description||"Live weather not loaded"}</p></div><div className="h-20 border-l border-gray-100"/><div className="flex-1 space-y-2 text-xs"><p>Humidity <b className="float-right">{weather?weather.humidity+"%":"--"}</b></p><p>Wind Speed <b className="float-right">{weather?weather.windKmh+" km/h":"--"}</b></p><p>Feels like <b className="float-right">{weather?Math.round(weather.feelsLikeC)+"°C":"--"}</b></p></div></div></Card><Card className="flex items-center gap-3 bg-[#e9f6ff] p-4"><CloudRain size={32} className="text-blue-500"/><div><b className="text-xs">Rain forecast</b><p className="text-[11px] text-gray-600">{weather?"Current conditions loaded from OpenWeather.":"Tap Refresh to load current local weather."}</p></div></Card><Card className="bg-[#fff8df] p-4"><div className="flex gap-2"><Lightbulb className="text-amber-500"/><b className="text-sm">AI Recommendation</b></div><p className="mt-2 text-xs leading-5 text-gray-700">{weather?"It is "+Math.round(weather.temperatureC)+"°C with "+weather.humidity+"% humidity. Check topsoil before watering; weather alone cannot measure soil moisture.":"Refresh weather to receive a location-aware care note."}</p></Card></main></>}
- {screen==="health"&&<>{header()}<main className="flex-1 space-y-4 px-4 pb-6 pt-4"><Photo label="Plant leaf / issue photo" height="h-48" emoji="🍃"/><div><p className="text-xs font-bold text-orange-600">Possible Issue</p><h2 className="mt-1 font-bold">Early Blight (Fungal Disease)</h2><p className="mt-1 text-xs text-gray-500">Illustrative example · Not a confirmed diagnosis</p></div><Card className="p-4"><b className="text-sm">Symptoms to check</b><ul className="mt-3 list-disc space-y-2 pl-5 text-xs text-gray-600"><li>Brown spots on older leaves</li><li>Yellowing around affected areas</li><li>Spreading lesions after humid weather</li></ul></Card><Card className="p-4"><b className="text-sm">General care steps</b>{["Remove severely affected leaves","Improve air circulation","Avoid overhead watering","Confirm diagnosis before treatment"].map(t=><p className="mt-3 flex gap-2 text-xs"><CheckCircle2 size={16} className="text-green-600"/>{t}</p>)}</Card></main></>}
- {screen==="suitability"&&<>{header()}<main className="flex-1 space-y-4 px-4 pb-6 pt-4"><div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3"><Search size={18} className="text-gray-400"/><input value={search} onChange={e=>setSearch(e.target.value)} className="w-full py-3 text-sm outline-none" placeholder="Search a plant"/><button onClick={()=>setSearch("")}><X size={16}/></button></div><Card className="flex items-center gap-3 p-3"><Photo label="Mango plant" height="h-20 w-24" emoji="🥭"/><div><b className="text-sm">{search||"Mango"}</b><p className="text-xs italic text-gray-500">Mangifera indica</p></div></Card><Card className="p-4"><b className="text-sm">Suitability for your location</b><div className="mt-4 flex items-center gap-5"><div className="grid h-24 w-24 place-items-center rounded-full border-[9px] border-[#d6efdc] border-t-[#087a43] text-xl font-bold text-green-800">89%</div><div><p className="text-xs text-gray-500">Expected Yield</p><b className="text-lg text-green-700">High</b></div></div></Card><Card className="p-4"><b className="text-sm">Why it may be suitable</b>{["Temperature within preferred range","Rainfall is adequate","Check soil type and drainage","Confirm planting season locally"].map(t=><p className="mt-3 flex gap-2 text-xs"><CheckCircle2 size={16} className="text-green-600"/>{t}</p>)}</Card><button onClick={()=>{setPlantName(search||"Mango");setAdded(true);go("care")}} className="w-full rounded-xl bg-[#087a43] py-3 text-sm font-bold text-white">Start Growing {search||"Mango"}</button></main></>}
- {screen==="store"&&<>{header(false)}<main className="flex-1 px-4 pb-5 pt-4"><div className="mb-4 flex gap-2 overflow-x-auto">{["Fertilizers","Seeds","Tools","Pesticides"].map(t=><Pill active={storeTab===t} onClick={()=>setStoreTab(t)} key={t}>{t}</Pill>)}</div><div className="space-y-3">{(storeTab==="Fertilizers"?products:storeTab==="Seeds"?[["Tomato Seeds","Hybrid high-yield variety","₹ 120","🍅"],["Spinach Seeds","Fast-growing leafy greens","₹ 80","🥬"]]:storeTab==="Tools"?[["Garden Hand Trowel","Stainless steel tool","₹ 199","🛠️"],["Watering Can","Indoor and outdoor use","₹ 249","🚿"]]:[["Neem Oil","Organic garden care","₹ 150","🧴"],["Sticky Traps","Monitor flying pests","₹ 99","🟨"]]).map((p:any,i:number)=><Card key={i} className="flex items-center gap-3 p-3"><div className="grid h-20 w-20 shrink-0 place-items-center rounded-xl bg-[#f1f5ee] text-4xl">{p[3]}</div><div className="min-w-0 flex-1"><b className="text-xs">{p[0]}</b><p className="mt-1 text-[10px] text-gray-500">{p[1]}</p><b className="mt-2 block text-xs">{p[2]}</b></div><button onClick={()=>{setCartCount(n=>n+1);alert("Added to your garden cart.");}} className="rounded-lg bg-[#087a43] px-3 py-2 text-[11px] font-bold text-white">Add</button></Card>)}</div></main>{bottom()}</>}
- {screen==="plants"&&<>{header(false)}<main className="flex-1 space-y-3 px-4 pb-5 pt-4"><div className="flex items-center justify-between"><div><b className="text-lg">My Plants</b><p className="text-xs text-gray-500">Your growing collection</p></div><button onClick={()=>go("scanner")} className="flex items-center gap-1 rounded-xl bg-[#087a43] px-3 py-2 text-xs font-bold text-white"><Plus size={15}/> Add</button></div>{["Tomato","Spinach"].map((p,i)=><button key={p} onClick={()=>{setPlantName(p);go("care")}} className="w-full text-left"><Card className="flex items-center gap-3 p-3"><Photo label={p} height="h-20 w-24" emoji={i?"🥬":"🍅"}/><div className="flex-1"><b className="text-sm">{p}</b><p className="text-xs text-gray-500">{i?"Vegetative":"Flowering"} Stage</p><p className="mt-1 text-[10px] font-semibold text-green-700">● Healthy</p></div><ChevronRight size={18} className="text-gray-400"/></Card></button>)}</main>{bottom()}</>}
- {screen==="alerts"&&<>{header(false)}<main className="flex-1 space-y-3 px-4 pb-5 pt-4"><b className="text-lg">Alerts & Reminders</b>{["Check soil moisture today","Fertilizer check in 2 days","Inspect leaves this weekend"].map((t,i)=><Card className="flex items-center gap-3 p-4" key={t}><div className="grid h-10 w-10 place-items-center rounded-xl bg-[#eff6ed] text-green-700"><Bell/></div><div><b className="text-xs">{t}</b><p className="text-[10px] text-gray-500">{i===0?"Today":i===1?"Upcoming":"Care reminder"}</p></div></Card>)}</main>{bottom()}</>}
- {screen==="assistant"&&<>{header()}<main className="flex flex-1 flex-col px-4 pb-5 pt-4"><Card className="mb-3 p-4"><div className="flex items-center gap-2"><Sparkles className="text-green-700"/><b className="text-sm">PlantPal AI Assistant</b></div><p className="mt-2 text-xs text-gray-500">Ask questions about plant care, watering, soil and growing conditions.</p></Card><div className="flex-1 space-y-3 overflow-y-auto">{messages.map((m,i)=><div key={i} className={`max-w-[85%] rounded-2xl p-3 text-xs leading-5 ${i===0?"bg-[#eef5eb]":"ml-auto bg-[#087a43] text-white"}`}>{m}</div>)}</div><form onSubmit={sendChat} className="mt-4 flex gap-2"><input value={chat} onChange={e=>setChat(e.target.value)} placeholder="Ask PlantPal..." className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-3 text-xs outline-none"/><button disabled={aiLoading} className="rounded-xl bg-[#087a43] px-4 text-white"><ArrowRight/></button></form>{aiLoading&&<p className="mt-2 text-xs text-green-700">PlantPal is thinking…</p>}{serviceError&&<p className="mt-2 text-xs text-red-600">{serviceError}</p>}</main></>}
- {screen==="details"&&<>{header()}<main className="flex-1 space-y-4 px-4 pb-6 pt-4"><Photo label="Plant detail image" height="h-56" emoji="🍅"/><h2 className="text-xl font-bold">{plantName}</h2><Card className="p-4"><b className="text-sm">Plant profile</b><p className="mt-2 text-xs leading-5 text-gray-600">Warm-season plant that generally needs plenty of sunlight, consistent moisture and well-drained soil.</p></Card><Row icon={Activity} title="Plant Health" desc="Inspect leaves and identify possible issues" onClick={()=>go("health")}/><Row icon={CalendarDays} title="Care Guide" desc="Watering, fertilizer and sunlight" onClick={()=>go("care")}/><Row icon={CloudSun} title="Local Weather" desc="Weather context for your garden" onClick={()=>go("weather")}/><button onClick={()=>setAdded(!added)} className="w-full rounded-xl bg-[#087a43] py-3 text-sm font-bold text-white">{added?"Remove from My Plants":"Add to My Plants"}</button></main></>}
- </div></div>;
+  const back = () => {
+    const prior = screenHistory[screenHistory.length - 1] || "home";
+    setScreenHistory((h) => h.slice(0, -1));
+    setScreen(prior);
+  };
+
+  const identifyPhoto = async () => {
+    if (!photoData) { setServiceError("Choose a plant photo first."); return; }
+    setAiLoading(true);
+    setServiceError("");
+    try {
+      const r = await fetch("/api/identify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: photoData }) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Identification failed");
+      const x = d.result;
+      setIdentifyResult(typeof x === "object" ? x : null);
+      setPlantName(typeof x === "object" ? (x.commonName || "Identified plant") : String(x).slice(0, 60));
+      go("result");
+    } catch (e: any) {
+      setServiceError(e.message || "Identification failed.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const sendChat = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const prompt = chat.trim();
+    if (!prompt || aiLoading) return;
+    const history = messages.slice(1).map((content, i) => ({ role: i % 2 === 0 ? "user" : "assistant", content }));
+    history.push({ role: "user", content: prompt });
+    setMessages([...messages, prompt]);
+    setChat("");
+    setAiLoading(true);
+    setServiceError("");
+    try {
+      const r = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: history }) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "AI request failed");
+      setMessages((m) => [...m, d.reply]);
+    } catch (e: any) {
+      setServiceError(e.message || "AI request failed.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const loadWeather = async () => {
+    setWeatherLoading(true);
+    setServiceError("");
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => navigator.geolocation ? navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 }) : reject(new Error("Location is unavailable.")));
+      const r = await fetch("/api/weather?lat=" + pos.coords.latitude + "&lon=" + pos.coords.longitude);
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Weather request failed");
+      setWeather(d);
+    } catch (e: any) {
+      setServiceError(e.message || "Weather request failed.");
+    } finally {
+      setWeatherLoading(false);
+    }
+  };
+
+  if (showSplash) return <Splash />;
+
+  return (
+    <div className="min-h-screen bg-[#edf2eb] text-[#18251c]">
+      <div className="mx-auto flex min-h-screen max-w-[430px] flex-col bg-[#fbfcf8] shadow-[0_0_40px_rgba(30,65,35,.1)]">
+        {screen === "home" && <HomeScreen go={go} plantName={plantName} setPlantName={setPlantName} added={added} setAdded={setAdded} />}        {screen === "scanner" && <ScannerScreen screen={screen} go={go} back={back} photoData={photoData} setPhotoData={setPhotoData} aiLoading={aiLoading} serviceError={serviceError} identifyPhoto={identifyPhoto} />}
+        {screen === "result" && <ResultScreen screen={screen} photoData={photoData} plantName={plantName} identifyResult={identifyResult} added={added} setAdded={setAdded} go={go} back={back} />}
+        {screen === "care" && <CareScreen screen={screen} go={go} back={back} careTab={careTab} setCareTab={setCareTab} />}
+        {screen === "weather" && <WeatherScreen screen={screen} go={go} back={back} weather={weather} weatherLoading={weatherLoading} serviceError={serviceError} loadWeather={loadWeather} />}
+        {screen === "health" && <HealthScreen screen={screen} go={go} back={back} />}
+        {screen === "suitability" && <SuitabilityScreen screen={screen} go={go} back={back} search={search} setSearch={setSearch} plantName={plantName} setPlantName={setPlantName} added={added} setAdded={setAdded} />}
+        {screen === "store" && <StoreScreen screen={screen} go={go} back={back} storeTab={storeTab} setStoreTab={setStoreTab} cartCount={cartCount} setCartCount={setCartCount} />}
+        {screen === "plants" && <PlantsScreen screen={screen} go={go} back={back} plantName={plantName} setPlantName={setPlantName} />}
+        {screen === "alerts" && <AlertsScreen screen={screen} go={go} back={back} />}
+        {screen === "assistant" && <AssistantScreen screen={screen} go={go} back={back} chat={chat} setChat={setChat} messages={messages} setMessages={setMessages} aiLoading={aiLoading} serviceError={serviceError} setServiceError={setServiceError} sendChat={sendChat} />}
+        {screen === "details" && <DetailsScreen screen={screen} go={go} back={back} plantName={plantName} added={added} setAdded={setAdded} />}
+      </div>
+    </div>
+  );
 }
