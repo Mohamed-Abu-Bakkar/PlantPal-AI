@@ -86,3 +86,31 @@ export const remove = mutation({
     return null;
   },
 });
+
+
+const starterPlants = [
+  { commonName: "Tomato", scientificName: "Solanum lycopersicum", summary: "A warm-season fruiting plant commonly grown in home gardens.", sunlight: "Full sun; aim for 6–8 hours of direct light where possible.", watering: "Water deeply at soil level when the top layer begins to dry; avoid waterlogging and frequent leaf wetting.", soil: "Loose, fertile, well-draining soil enriched with mature compost.", temperature: "Grows best in warm conditions; protect from frost and extreme heat.", emoji: "🍅" },
+  { commonName: "Spinach", scientificName: "Spinacia oleracea", summary: "A leafy green that generally prefers cooler growing conditions.", sunlight: "Full sun in cool weather; partial shade can help in warmer climates.", watering: "Keep soil evenly moist, not saturated; check more often in hot or dry weather.", soil: "Moist, fertile, well-draining soil rich in organic matter.", temperature: "Prefers cool weather; heat can cause premature flowering.", emoji: "🥬" },
+  { commonName: "Mango", scientificName: "Mangifera indica", summary: "A tropical evergreen fruit tree that needs space and a warm, sunny site.", sunlight: "Full sun and good air circulation.", watering: "Water young trees regularly while establishing; mature trees need deep watering during prolonged dry periods.", soil: "Deep, well-draining soil; avoid locations where water remains around the roots.", temperature: "Tropical to subtropical warmth; protect young trees from cold.", emoji: "🥭" },
+  { commonName: "Basil", scientificName: "Ocimum basilicum", summary: "An aromatic herb grown for its leaves; pinch tips to encourage branching.", sunlight: "At least 6 hours of sun; provide afternoon shade in very hot weather.", watering: "Keep soil lightly and consistently moist while allowing excess water to drain.", soil: "Fertile, loose, well-draining potting mix or garden soil.", temperature: "Warm conditions; sensitive to cold and frost.", emoji: "🌿" },
+  { commonName: "Chilli", scientificName: "Capsicum annuum", summary: "A warm-season pepper plant that grows well in containers or garden beds.", sunlight: "Full sun, ideally 6–8 hours daily.", watering: "Water when the surface begins to dry; keep moisture consistent during flowering and fruiting.", soil: "Well-draining, fertile soil with organic matter.", temperature: "Warm conditions; protect from frost and severe heat stress.", emoji: "🌶️" },
+];
+export const plantList = query({ args: {}, returns: v.array(v.any()), handler: async (ctx) => await ctx.db.query("plantCatalog").collect() });
+export const plantByName = query({
+  args: { name: v.string() }, returns: v.union(v.any(), v.null()),
+  handler: async (ctx, args) => {
+    const all = await ctx.db.query("plantCatalog").collect();
+    const target = args.name.trim().toLowerCase();
+    return all.find(p => p.commonName.toLowerCase() === target || p.scientificName.toLowerCase() === target) ?? null;
+  },
+});
+export const seedStarterPlants = mutation({
+  args: {}, returns: v.null(),
+  handler: async (ctx) => {
+    const existing = await ctx.db.query("plantCatalog").first();
+    if (existing) return null;
+    const now = Date.now();
+    for (const plant of starterPlants) await ctx.db.insert("plantCatalog", { ...plant, updatedAt: now });
+    return null;
+  },
+});
