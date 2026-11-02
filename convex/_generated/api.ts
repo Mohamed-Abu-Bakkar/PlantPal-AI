@@ -1,13 +1,10 @@
 /* eslint-disable */
 /**
- * Convex API type declarations.
- * The Convex CLI regenerates this file during backend code generation.
+ * Temporary Convex API runtime proxy.
+ * Replace with Convex CLI generated bindings once authenticated codegen is available.
  */
-import type * as plants from "../plants.js";
-import type * as userData from "../userData.js";
-import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
+import { anyApi } from "convex/server";
 
-declare const fullApi: ApiFromModules<{ plants: typeof plants; userData: typeof userData }>;
-export declare const api: FilterApi<typeof fullApi, FunctionReference<any, "public">>;
-export declare const internal: FilterApi<typeof fullApi, FunctionReference<any, "internal">>;
-export declare const components: {};
+export const api = anyApi;
+export const internal = anyApi;
+export const components = {};
