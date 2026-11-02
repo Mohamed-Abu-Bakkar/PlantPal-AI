@@ -35,6 +35,7 @@ export default function Home() {
   const [chat,setChat]=useState("");
   const [messages,setMessages]=useState(["Hello! I’m your PlantPal AI assistant. Ask me anything about your garden."]);
   const [photoData,setPhotoData]=useState("");
+  const [photoStorageId,setPhotoStorageId]=useState<string|null>(null);
   const [aiLoading,setAiLoading]=useState(false);
   const [weather,setWeather]=useState<any>(null);
   const [weatherLoading,setWeatherLoading]=useState(false);
@@ -47,7 +48,7 @@ export default function Home() {
 
   const identifyPhoto=async()=>{
     if(!photoData){setServiceError("Choose a plant photo first.");return;}
-    setAiLoading(true);setServiceError("");
+    setAiLoading(true);setServiceError("");setPhotoStorageId(null);
     try{
       const r=await fetch("/api/identify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:photoData})});
       const d=await r.json();if(!r.ok)throw new Error(d.error||"Identification failed");
@@ -61,6 +62,7 @@ export default function Home() {
           const upload=await fetch(uploadUrl,{method:"POST",headers:{"Content-Type":blob.type||"image/jpeg"},body:blob});
           if(!upload.ok)throw new Error("Photo upload failed");
           const stored=await upload.json();
+          setPhotoStorageId(stored.storageId);
           await saveScan({plantName:commonName,scientificName:result?.scientificName||undefined,confidence:typeof result?.confidence==="number"?result.confidence:undefined,visibleClues:Array.isArray(result?.visibleClues)?result.visibleClues:[],caveats:Array.isArray(result?.caveats)?result.caveats:[],imageStorageId:stored.storageId});
         }catch(storageError){setServiceError(storageError instanceof Error?storageError.message:"Could not save scan history.");}
       }
@@ -101,7 +103,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#edf2eb] text-[#18251c]"><div className="mx-auto flex min-h-screen max-w-[430px] flex-col bg-[#fbfcf8] shadow-[0_0_40px_rgba(30,65,35,.1)]">
       {screen==="home"&&<HomeScreen go={go} plantName={plantName} setPlantName={setPlantName} added={added} setAdded={setAdded}/>}
       {screen==="scanner"&&<ScannerScreen screen={screen} go={go} back={back} photoData={photoData} setPhotoData={setPhotoData} aiLoading={aiLoading} serviceError={serviceError} identifyPhoto={identifyPhoto}/>}
-      {screen==="result"&&<ResultScreen screen={screen} photoData={photoData} plantName={plantName} identifyResult={identifyResult} added={added} setAdded={setAdded} go={go} back={back}/>}
+      {screen==="result"&&<ResultScreen screen={screen} photoData={photoData} photoStorageId={photoStorageId} plantName={plantName} setPlantName={setPlantName} identifyResult={identifyResult} added={added} setAdded={setAdded} go={go} back={back}/>}
       {screen==="care"&&<CareScreen screen={screen} go={go} back={back} careTab={careTab} setCareTab={setCareTab} plantName={plantName}/>}
       {screen==="weather"&&<WeatherScreen screen={screen} go={go} back={back} weather={weather} weatherLoading={weatherLoading} serviceError={serviceError} loadWeather={loadWeather}/>}
       {screen==="health"&&<HealthScreen screen={screen} go={go} back={back}/>}
