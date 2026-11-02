@@ -1,13 +1,12 @@
 /* eslint-disable */
 /**
- * Generated-style Convex API references.
- * Run `npx convex dev` to refresh this file from the live deployment.
+ * Generated Convex API types.
+ * This file is normally maintained by the Convex CLI.
  */
-import { anyApi, componentsGeneric } from "convex/server";
-import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
 import type * as plants from "../plants.js";
+import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
 
-const fullApi = anyApi as ApiFromModules<{ plants: typeof plants }>;
-export const api: FilterApi<typeof fullApi, FunctionReference<any, "public">> = anyApi;
-export const internal: FilterApi<typeof fullApi, FunctionReference<any, "internal">> = anyApi;
-export const components = componentsGeneric();
+declare const fullApi: ApiFromModules<{ plants: typeof plants }>;
+export declare const api: FilterApi<typeof fullApi, FunctionReference<any, "public">>;
+export declare const internal: FilterApi<typeof fullApi, FunctionReference<any, "internal">>;
+export declare const components: {};
