@@ -101,7 +101,7 @@ export const ingest = mutation({
     deviceCode: v.string(),
     readingId: v.string(),
     soilTemperatureC: v.number(),
-    airTemperatureC: v.number(),
+    airTemperatureC: v.optional(v.number()),
     airHumidity: v.number(),
     recordedAt: v.optional(v.number()),
   },
@@ -112,7 +112,7 @@ export const ingest = mutation({
     if (!code || code.length > 64) throw new Error("Invalid deviceCode.");
     if (!readingId || readingId.length > 100) throw new Error("Invalid readingId.");
     if (!Number.isFinite(args.soilTemperatureC) || args.soilTemperatureC < -20 || args.soilTemperatureC > 80) throw new Error("soilTemperatureC must be between -20 and 80.");
-    if (!Number.isFinite(args.airTemperatureC) || args.airTemperatureC < -20 || args.airTemperatureC > 80) throw new Error("airTemperatureC must be between -20 and 80.");
+    if (args.airTemperatureC !== undefined && (!Number.isFinite(args.airTemperatureC) || args.airTemperatureC < -20 || args.airTemperatureC > 80)) throw new Error("airTemperatureC must be between -20 and 80 when supplied.");
     if (!Number.isFinite(args.airHumidity) || args.airHumidity < 0 || args.airHumidity > 100) throw new Error("airHumidity must be between 0 and 100.");
 
     const device = await ctx.db.query("iotDevices")
@@ -144,7 +144,7 @@ export const ingest = mutation({
       deviceId: device._id,
       readingId,
       soilTemperatureC: args.soilTemperatureC,
-      airTemperatureC: args.airTemperatureC,
+      ...(args.airTemperatureC !== undefined ? { airTemperatureC: args.airTemperatureC } : {}),
       airHumidity: args.airHumidity,
       recordedAt,
       receivedAt,
