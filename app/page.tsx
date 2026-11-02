@@ -16,6 +16,7 @@ import {PlantsScreen} from "./components/screens/PlantsScreen";
 import {AlertsScreen} from "./components/screens/AlertsScreen";
 import {AssistantScreen} from "./components/screens/AssistantScreen";
 import {DetailsScreen} from "./components/screens/DetailsScreen";
+import {IoTScreen} from "./components/screens/IoTScreen";
 import type {Screen} from "./components/shared/types";
 
 export default function Home() {
@@ -113,6 +114,7 @@ export default function Home() {
       {screen==="alerts"&&<AlertsScreen screen={screen} go={go} back={back}/>}
       {screen==="assistant"&&<AssistantScreen screen={screen} go={go} back={back} chat={chat} setChat={setChat} messages={displayedMessages} setMessages={setMessages} aiLoading={aiLoading} serviceError={serviceError} setServiceError={setServiceError} sendChat={sendChat}/>}
       {screen==="details"&&<DetailsScreen screen={screen} go={go} back={back} plantName={plantName} added={added} setAdded={setAdded}/>}
+      {screen==="iot"&&<IoTScreen screen={screen} go={go} back={back}/>}
     </div></div>
   );
 }
