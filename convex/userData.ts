@@ -122,7 +122,7 @@ export const setCartQuantity = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const ownerId = await owner(ctx);
-    const existing = await ctx.db.query("cartItems").withIndex("by_owner_and_product", q => q.eq("ownerId", ownerId).eq("productKey", args.productKey)).unique();
+    const existing = await ctx.db.query("cartItems").withIndex("by_owner_and_product", q => q.eq("ownerId", ownerId)).filter(q => q.eq(q.field("productKey"), args.productKey)).unique();
     if (args.quantity <= 0) {
       if (existing) await ctx.db.delete(existing._id);
       return null;
