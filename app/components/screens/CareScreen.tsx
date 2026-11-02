@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {Droplets, Sprout, Sun, Activity, ThermometerSun, CalendarDays, ChevronRight} from "lucide-react";
 import {Header} from "../ui/Header";
