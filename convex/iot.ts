@@ -127,7 +127,7 @@ export const ingest = mutation({
 
     const receivedAt = Date.now();
     const previous = await ctx.db.query("sensorReadings")
-      .withIndex("by_device_and_time", q => q.eq("deviceId", device._id))
+      .withIndex("by_device_and_received", q => q.eq("deviceId", device._id))
       .order("desc")
       .first();
     if (previous && receivedAt - previous.receivedAt < 25_000) {
