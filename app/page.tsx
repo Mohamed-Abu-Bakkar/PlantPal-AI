@@ -102,7 +102,7 @@ export default function Home() {
       {screen==="home"&&<HomeScreen go={go} plantName={plantName} setPlantName={setPlantName} added={added} setAdded={setAdded}/>}
       {screen==="scanner"&&<ScannerScreen screen={screen} go={go} back={back} photoData={photoData} setPhotoData={setPhotoData} aiLoading={aiLoading} serviceError={serviceError} identifyPhoto={identifyPhoto}/>}
       {screen==="result"&&<ResultScreen screen={screen} photoData={photoData} plantName={plantName} identifyResult={identifyResult} added={added} setAdded={setAdded} go={go} back={back}/>}
-      {screen==="care"&&<CareScreen screen={screen} go={go} back={back} careTab={careTab} setCareTab={setCareTab}/>}
+      {screen==="care"&&<CareScreen screen={screen} go={go} back={back} careTab={careTab} setCareTab={setCareTab} plantName={plantName}/>}
       {screen==="weather"&&<WeatherScreen screen={screen} go={go} back={back} weather={weather} weatherLoading={weatherLoading} serviceError={serviceError} loadWeather={loadWeather}/>}
       {screen==="health"&&<HealthScreen screen={screen} go={go} back={back}/>}
       {screen==="suitability"&&<SuitabilityScreen screen={screen} go={go} back={back} search={search} setSearch={setSearch} plantName={plantName} setPlantName={setPlantName} added={added} setAdded={setAdded}/>}
