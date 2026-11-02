@@ -10,7 +10,8 @@ export type Screen =
   | "plants"
   | "alerts"
   | "assistant"
-  | "details";
+  | "details"
+  | "iot";
 
 export const GREEN = "#087a43";
 
@@ -27,4 +28,5 @@ export const SCREEN_TITLES: Record<Screen, string> = {
   alerts: "Alerts",
   assistant: "AI Assistant",
   details: "Plant Details",
+  iot: "IoT Field Monitor",
 };
