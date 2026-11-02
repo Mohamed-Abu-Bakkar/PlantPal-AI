@@ -17,6 +17,7 @@ export const list = query({
       .withIndex("by_owner_and_created", (q) => q.eq("ownerId", identity.tokenIdentifier))
       .order("desc")
       .take(100);
+    return await Promise.all(plants.map(async (plant) => ({ ...plant, imageUrl: plant.imageStorageId ? await ctx.storage.getUrl(plant.imageStorageId) : null })));
   },
 });
 
@@ -27,6 +28,7 @@ export const add = mutation({
     location: v.optional(v.string()),
     notes: v.optional(v.string()),
     plantedAt: v.optional(v.number()),
+    imageStorageId: v.optional(v.id("_storage")),
   },
   returns: v.id("plants"),
   handler: async (ctx, args) => {
