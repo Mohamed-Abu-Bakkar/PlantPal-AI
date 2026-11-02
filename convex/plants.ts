@@ -12,12 +12,21 @@ export const list = query({
   returns: v.array(v.any()),
   handler: async (ctx) => {
     const identity = await requireIdentity(ctx);
-    const plants = await ctx.db
+    const rows = await ctx.db
       .query("plants")
       .withIndex("by_owner_and_created", (q) => q.eq("ownerId", identity.tokenIdentifier))
       .order("desc")
       .take(100);
-    return await Promise.all(plants.map(async (plant) => ({ ...plant, imageUrl: plant.imageStorageId ? await ctx.storage.getUrl(plant.imageStorageId) : null })));
+    // Older records may have optional fields unset or legacy blank names.
+    // Do not let incomplete rows break the My Plants screen.
+    const plants = rows.filter((plant) => typeof plant.name === "string" && plant.name.trim().length > 0);
+    return await Promise.all(plants.map(async (plant) => ({
+      ...plant,
+      species: plant.species?.trim() || undefined,
+      location: plant.location?.trim() || undefined,
+      notes: plant.notes?.trim() || undefined,
+      imageUrl: plant.imageStorageId ? await ctx.storage.getUrl(plant.imageStorageId) : null,
+    })));
   },
 });
 
@@ -33,8 +42,43 @@ export const add = mutation({
   returns: v.id("plants"),
   handler: async (ctx, args) => {
     const identity = await requireIdentity(ctx);
+    const name = args.name.trim();
+    if (!name) throw new Error("Plant name cannot be empty.");
+
+    // Make confirmation idempotent: if the user already has this plant,
+    // enrich the existing record rather than rejecting the save or duplicating it.
+    const existingRows = await ctx.db
+      .query("plants")
+      .withIndex("by_owner_and_created", (q) => q.eq("ownerId", identity.tokenIdentifier))
+      .order("desc")
+      .take(100);
+    const existing = existingRows.find((plant) =>
+      typeof plant.name === "string" && plant.name.trim().toLocaleLowerCase() === name.toLocaleLowerCase()
+    );
+
+    const clean = {
+      species: args.species?.trim() || undefined,
+      location: args.location?.trim() || undefined,
+      notes: args.notes?.trim() || undefined,
+      plantedAt: args.plantedAt,
+      imageStorageId: args.imageStorageId,
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        name,
+        species: clean.species || existing.species,
+        location: clean.location || existing.location,
+        notes: clean.notes || existing.notes,
+        plantedAt: existing.plantedAt ?? clean.plantedAt,
+        imageStorageId: clean.imageStorageId || existing.imageStorageId,
+      });
+      return existing._id;
+    }
+
     return await ctx.db.insert("plants", {
-      ...args,
+      name,
+      ...clean,
       ownerId: identity.tokenIdentifier,
       createdAt: Date.now(),
     });
