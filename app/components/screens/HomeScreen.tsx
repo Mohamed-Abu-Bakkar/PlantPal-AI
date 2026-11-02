@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useClerk, useUser } from "@clerk/nextjs";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { Menu, Bell, Camera, Leaf, MapPin, CloudSun, ShoppingCart, Sparkles, X, UserRound, Settings, LogIn, UserPlus, LogOut, CircleHelp } from "lucide-react";
 import { Tile } from "../ui/Tile";
 import { Card } from "../ui/Card";
@@ -12,6 +14,7 @@ export function HomeScreen({go, plantName, setPlantName, added, setAdded}:{go: (
   const [menuOpen, setMenuOpen] = useState(false);
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useClerk();
+  const plants = useQuery(api.plants.list, isLoaded && isSignedIn ? {} : "skip");
   const navigate = (screen: Screen) => { setMenuOpen(false); go(screen); };
 
   return (
@@ -58,12 +61,9 @@ export function HomeScreen({go, plantName, setPlantName, added, setAdded}:{go: (
           <Tile Icon={Sparkles} label="AI Assistant" onClick={() => go("assistant")} />
         </div>
         <div><div className="mb-3 flex items-center justify-between"><h2 className="font-bold">My Plants</h2><button onClick={() => go("plants")} className="text-xs font-semibold text-[#087a43]">See All →</button></div>
-          <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => {setPlantName("Tomato"); go("care");}} className="overflow-hidden rounded-2xl border border-[#e5ece3] bg-white text-left shadow-sm"><img src="/tomato-plant.png" alt="Tomato plant" className="h-24 w-full object-cover" /><div className="p-3"><b className="text-xs">Tomato</b><p className="text-[10px] text-gray-500">Flowering Stage</p><p className="mt-1 text-[10px] font-semibold text-green-700">● Healthy</p></div></button>
-            <button onClick={() => {setPlantName("Spinach"); go("care");}} className="overflow-hidden rounded-2xl border border-[#e5ece3] bg-white text-left shadow-sm"><img src="/spinach-palnt.png" alt="Spinach plant" className="h-24 w-full object-cover" /><div className="p-3"><b className="text-xs">Spinach</b><p className="text-[10px] text-gray-500">Vegetative Stage</p><p className="mt-1 text-[10px] font-semibold text-green-700">● Healthy</p></div></button>
-          </div>
+          {!isLoaded || (isSignedIn && plants === undefined) ? <p className="text-xs text-gray-500">Loading your garden…</p> : !isSignedIn ? <Card className="p-4 text-xs text-gray-600">Sign in to view plants saved to your account.</Card> : plants?.length ? <div className="grid grid-cols-2 gap-3">{plants.slice(0,4).map((plant) => <button key={plant._id} onClick={() => {setPlantName(plant.name); go("care");}} className="rounded-2xl border border-[#e5ece3] bg-white p-3 text-left shadow-sm"><div className="grid h-20 place-items-center rounded-xl bg-[#eef5eb] text-3xl">🌱</div><b className="mt-2 block text-xs">{plant.name}</b><p className="text-[10px] text-gray-500">{plant.species || "Species not set"}</p></button>)}</div> : <Card className="p-4"><p className="text-xs text-gray-600">Your garden is empty. Add your first plant to see it here.</p><button onClick={() => go("plants")} className="mt-2 text-xs font-bold text-[#087a43]">Add a plant →</button></Card>}
         </div>
-        <Card className="p-4"><div className="flex items-center justify-between"><b className="text-sm">Today's garden tip</b><Sparkles size={18} className="text-[#13864a}" /></div><p className="mt-2 text-xs leading-5 text-[#68766b]">Check the soil before watering. The top layer drying out is a useful first clue, but each plant has different needs.</p><button onClick={() => go("assistant")} className="mt-3 text-xs font-bold text-[#087a43]">Ask PlantPal →</button></Card>
+        <Card className="p-4"><div className="flex items-center justify-between"><b className="text-sm">Today's garden tip</b><Sparkles size={18} className="text-[#13864a]" /></div><p className="mt-2 text-xs leading-5 text-[#68766b]">Check the soil before watering. The top layer drying out is a useful first clue, but each plant has different needs.</p><button onClick={() => go("assistant")} className="mt-3 text-xs font-bold text-[#087a43]">Ask PlantPal →</button></Card>
       </main>
     </>
   );
