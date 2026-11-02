@@ -2,6 +2,34 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  fields: defineTable({
+    userId: v.string(),
+    name: v.string(),
+    location: v.object({ latitude: v.number(), longitude: v.number() }),
+    address: v.optional(v.string()),
+    soilType: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_user_and_created", ["userId", "createdAt"]),
+  iotDevices: defineTable({
+    userId: v.string(),
+    fieldId: v.id("fields"),
+    deviceName: v.string(),
+    deviceCode: v.string(),
+    status: v.string(),
+    lastSeenAt: v.optional(v.number()),
+    createdAt: v.number(),
+  }).index("by_device_code", ["deviceCode"]).index("by_field", ["fieldId"]).index("by_user", ["userId"]),
+  sensorReadings: defineTable({
+    userId: v.string(),
+    fieldId: v.id("fields"),
+    deviceId: v.id("iotDevices"),
+    readingId: v.string(),
+    soilTemperatureC: v.number(),
+    airTemperatureC: v.number(),
+    airHumidity: v.number(),
+    recordedAt: v.number(),
+    receivedAt: v.number(),
+  }).index("by_field_and_time", ["fieldId", "recordedAt"]).index("by_device_and_time", ["deviceId", "recordedAt"]).index("by_reading_id", ["readingId"]),
   plants: defineTable({
     ownerId: v.optional(v.string()),
     name: v.string(),
