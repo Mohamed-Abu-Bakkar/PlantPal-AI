@@ -95,4 +95,7 @@ export default defineSchema({
     snapshot: v.string(),
     createdAt: v.number(),
   }).index("by_product_and_created", ["productId", "createdAt"]),
+  plantCatalog: defineTable({
+    commonName: v.string(), scientificName: v.string(), summary: v.string(), sunlight: v.string(), watering: v.string(), soil: v.string(), temperature: v.string(), emoji: v.string(), updatedAt: v.number(),
+  }).index("by_common_name", ["commonName"]),
 });
