@@ -4,10 +4,19 @@ import { useMemo, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Activity, Cpu, MapPin, Plus, Thermometer, Droplets, Wind, Wifi, WifiOff } from "lucide-react";
+import { Activity, Cpu, MapPin, Plus, Thermometer, Droplets, Wifi, WifiOff, FlaskConical } from "lucide-react";
 import { Header } from "../ui/Header";
 import { Card } from "../ui/Card";
 import { SCREEN_TITLES, type Screen } from "../shared/types";
+
+const prototypeSamples = [
+  { id:"demo-1", at:"10:00", soil:25.8, humidity:66 },
+  { id:"demo-2", at:"10:05", soil:26.1, humidity:65 },
+  { id:"demo-3", at:"10:10", soil:26.4, humidity:67 },
+  { id:"demo-4", at:"10:15", soil:26.7, humidity:68 },
+  { id:"demo-5", at:"10:20", soil:26.5, humidity:69 },
+  { id:"demo-6", at:"10:25", soil:26.3, humidity:68 },
+];
 
 export function IoTScreen({ screen, go, back }: { screen: Screen; go: (s: Screen) => void; back: () => void }) {
   const { isLoaded, isSignedIn } = useUser();
@@ -30,6 +39,8 @@ export function IoTScreen({ screen, go, back }: { screen: Screen; go: (s: Screen
   const readings = useQuery(api.iot.latestReadings, selectedField ? { fieldId: selectedField._id, limit: 48 } : "skip");
   const latest = readings?.[0];
   const sortedReadings = useMemo(() => readings ? [...readings].reverse() : [], [readings]);
+  const hasLiveReadings = Boolean(readings?.length);
+  const previewRows = hasLiveReadings ? sortedReadings.slice(-6).map((r:any,i:number)=>({id:r._id,at:new Date(r.recordedAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}),soil:r.soilTemperatureC,humidity:r.airHumidity})) : prototypeSamples;
 
   async function saveField(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); setSaving(true); setError("");
@@ -53,7 +64,7 @@ export function IoTScreen({ screen, go, back }: { screen: Screen; go: (s: Screen
   return <>
     <Header backable screen={screen} go={go} back={back} cartCount={0} title={SCREEN_TITLES} />
     <main className="flex-1 space-y-4 px-4 pb-6 pt-4">
-      <div><h1 className="text-lg font-bold">Field sensor dashboard</h1><p className="text-xs text-gray-500">Monitor soil and local air conditions from your ESP32-S3.</p></div>
+      <div><h1 className="text-lg font-bold">Field sensor dashboard</h1><p className="text-xs text-gray-500">Prototype monitors soil temperature and surrounding-air humidity from your sensor setup.</p></div>
       {!isLoaded ? <p className="text-sm text-gray-500">Loading account…</p> : !isSignedIn ? <Card className="p-4 text-sm">Sign in to register fields and view your sensor data.</Card> : <>
         {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-xs text-red-700">{error}</p>}
         <div className="flex items-center justify-between"><b className="text-sm">Your fields</b><button onClick={() => setShowFieldForm(v => !v)} className="flex items-center gap-1 rounded-xl bg-[#087a43] px-3 py-2 text-xs font-bold text-white"><Plus size={14}/> Add field</button></div>
@@ -62,13 +73,13 @@ export function IoTScreen({ screen, go, back }: { screen: Screen; go: (s: Screen
         {selectedField && <>
           <div className="flex items-center justify-between"><div><b className="text-sm">{selectedField.name}</b><p className="text-[10px] text-gray-500">{selectedField.address || `${selectedField.location.latitude}, ${selectedField.location.longitude}`}</p></div><button onClick={()=>setShowDeviceForm(v=>!v)} className="rounded-xl border border-[#dce6dc] px-3 py-2 text-xs font-semibold"><Plus size={13} className="mr-1 inline"/> Connect device</button></div>
           {showDeviceForm && <Card className="p-4"><form onSubmit={saveDevice} className="space-y-2"><b className="text-sm">Register ESP32-S3</b><input value={deviceName} onChange={e=>setDeviceName(e.target.value)} placeholder="Device name" className="w-full rounded-lg border p-2 text-xs"/><input required minLength={6} maxLength={64} value={deviceCode} onChange={e=>setDeviceCode(e.target.value)} placeholder="Device code (same value in firmware)" className="w-full rounded-lg border p-2 text-xs"/><p className="text-[10px] text-gray-500">This code identifies the field. It is not a password; keep the public-ingestion risk in mind.</p><button disabled={saving} className="rounded-lg bg-[#087a43] px-3 py-2 text-xs font-bold text-white">{saving?"Saving…":"Register device"}</button></form></Card>}
-          <div className="grid grid-cols-3 gap-2">
-            <Card className="p-3"><Thermometer size={17} className="text-orange-500"/><b className="mt-2 block text-lg">{latest ? latest.soilTemperatureC.toFixed(1)+"°" : "--"}</b><span className="text-[10px] text-gray-500">Soil °C</span></Card>
-            <Card className="p-3"><Wind size={17} className="text-blue-500"/><b className="mt-2 block text-lg">{latest ? latest.airTemperatureC.toFixed(1)+"°" : "--"}</b><span className="text-[10px] text-gray-500">Air °C</span></Card>
-            <Card className="p-3"><Droplets size={17} className="text-cyan-600"/><b className="mt-2 block text-lg">{latest ? latest.airHumidity.toFixed(0)+"%" : "--"}</b><span className="text-[10px] text-gray-500">Humidity</span></Card>
+          <div className="grid grid-cols-2 gap-3">
+            <Card className="p-4"><Thermometer size={18} className="text-orange-500"/><b className="mt-2 block text-2xl">{latest ? latest.soilTemperatureC.toFixed(1)+"°C" : "26.4°C"}</b><span className="text-[10px] text-gray-500">Soil temperature</span></Card>
+            <Card className="p-4"><Droplets size={18} className="text-cyan-600"/><b className="mt-2 block text-2xl">{latest ? latest.airHumidity.toFixed(0)+"%" : "68%"}</b><span className="text-[10px] text-gray-500">Air humidity</span></Card>
           </div>
+          {!hasLiveReadings&&<Card className="flex items-start gap-2 border-amber-200 bg-amber-50 p-3"><FlaskConical size={16} className="mt-0.5 shrink-0 text-amber-700"/><div><b className="text-xs text-amber-900">Prototype sample readings</b><p className="mt-1 text-[10px] leading-4 text-amber-800">26.4°C soil temperature and 68% air humidity are simulated demo values, not readings from connected hardware.</p></div></Card>}
           <Card className="p-4"><div className="flex items-center justify-between"><b className="text-sm">Device status</b><span className="text-[10px] text-gray-500">{devices?.length ?? 0} registered</span></div>{devices?.length ? devices.map((device:any)=><div key={device._id} className="mt-3 flex items-center justify-between border-t pt-3"><div className="flex items-center gap-2">{device.lastSeenAt && Date.now()-device.lastSeenAt < 90_000 ? <Wifi size={17} className="text-green-600"/>:<WifiOff size={17} className="text-gray-400"/>}<div><b className="block text-xs">{device.deviceName}</b><span className="text-[10px] text-gray-500">Last seen: {device.lastSeenAt?new Date(device.lastSeenAt).toLocaleString():"Never"}</span></div></div><span className="text-[10px] font-semibold capitalize">{device.lastSeenAt && Date.now()-device.lastSeenAt < 90_000 ? "online" : "offline"}</span></div>):<p className="mt-3 text-xs text-gray-500">No device connected to this field.</p>}</Card>
-          <Card className="p-4"><div className="flex items-center gap-2"><Activity size={17} className="text-[#087a43]"/><b className="text-sm">Recent sensor history</b></div>{readings===undefined?<p className="mt-3 text-xs text-gray-500">Loading readings…</p>:sortedReadings.length?<div className="mt-3 space-y-2">{[...sortedReadings].reverse().slice(0,12).map((reading:any)=><div key={reading._id} className="flex items-center justify-between border-b border-gray-100 pb-2 text-[10px]"><span className="text-gray-500">{new Date(reading.recordedAt).toLocaleString()}</span><span>Soil {reading.soilTemperatureC.toFixed(1)}° · Air {reading.airTemperatureC.toFixed(1)}° · {reading.airHumidity.toFixed(0)}%</span></div>)}</div>:<p className="mt-3 text-xs text-gray-500">No readings yet. Once your ESP32 sends its first upload, live values and history will appear here.</p>}</Card>
+          <Card className="p-4"><div className="flex items-center gap-2"><Activity size={17} className="text-[#087a43]"/><b className="text-sm">Recent sensor history</b></div><p className="mt-1 text-[10px] text-gray-400">{hasLiveReadings?"Live device readings":"Illustrative prototype data · not stored in the database"}</p><div className="mt-3 space-y-2">{previewRows.slice().reverse().map((reading:any)=><div key={reading.id} className="flex items-center justify-between border-b border-gray-100 pb-2 text-[10px]"><span className="text-gray-500">{reading.at}</span><span>Soil {reading.soil.toFixed(1)}°C · Air humidity {reading.humidity.toFixed(0)}%</span></div>)}</div></Card>
         </>}
         {!selectedField && fields?.length ? <Card className="p-4 text-xs text-gray-500">Select a field above to view its connected device and sensor readings.</Card> : null}
       </>}
