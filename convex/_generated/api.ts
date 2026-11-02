@@ -1,10 +1,13 @@
 /* eslint-disable */
 /**
- * Temporary Convex API runtime proxy.
- * Replace with Convex CLI generated bindings once authenticated codegen is available.
+ * Convex API bindings. Regenerate with `npx convex codegen` after deployment auth is fixed.
  */
 import { anyApi } from "convex/server";
+import type * as plants from "../plants.js";
+import type * as userData from "../userData.js";
+import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
 
-export const api = anyApi;
-export const internal = anyApi;
+declare const fullApi: ApiFromModules<{ plants: typeof plants; userData: typeof userData }>;
+export const api: FilterApi<typeof fullApi, FunctionReference<any, "public">> = anyApi as any;
+export const internal: FilterApi<typeof fullApi, FunctionReference<any, "internal">> = anyApi as any;
 export const components = {};
