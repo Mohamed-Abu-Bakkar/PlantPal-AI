@@ -11,11 +11,11 @@ import {Row} from "../ui/Row";
 import {SCREEN_TITLES} from "../shared/types";
 import type {Screen} from "../shared/types";
 
-export function CareScreen({screen, go, back, careTab, setCareTab}:{screen: Screen; go: (s: Screen) => void; back: () => void; careTab: string; setCareTab: (v: string) => void}) {
+export function CareScreen({screen, go, back, careTab, setCareTab, plantName}:{screen: Screen; go: (s: Screen) => void; back: () => void; careTab: string; setCareTab: (v: string) => void; plantName: string}) {
   const {isLoaded,isSignedIn}=useUser();
   const plants=useQuery(api.plants.list,isLoaded&&isSignedIn?{}:"skip");
   const tasks=useQuery(api.plants.tasks,isLoaded&&isSignedIn?{}:"skip");
-  const selected=plants?.find(p=>p.name===undefined) ?? plants?.[0];
+  const selected=plants?.find(p=>p.name.toLowerCase()===plantName.toLowerCase()) ?? plants?.[0];
   return (
     <>
       <Header backable screen={screen} go={go} back={back} cartCount={0} title={SCREEN_TITLES} />
