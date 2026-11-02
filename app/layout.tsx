@@ -13,14 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <ClerkProvider>
-          <PWARegister />
-          <ConvexClientProvider>{children}</ConvexClientProvider>
-        </ClerkProvider>
-      </body>
-    </html>
-  );
+  return <html lang="en"><body><ClerkProvider><PWARegister /><ConvexClientProvider>{children}</ConvexClientProvider></ClerkProvider></body></html>;
 }
