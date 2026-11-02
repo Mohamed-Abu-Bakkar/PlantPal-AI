@@ -19,7 +19,7 @@ export function DetailsScreen({screen,go,back,plantName,added,setAdded}:{screen:
   const removePlant=useMutation(api.plants.remove);
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
-  const existing=plants?.find(p=>p.name.toLowerCase()===plantName.toLowerCase());
+  const existing=plants?.find((p: any)=>p.name.toLowerCase()===plantName.toLowerCase());
   const toggle=async()=>{
     if(!isSignedIn){setError("Sign in to manage your saved plants.");return;}
     setBusy(true);setError("");
