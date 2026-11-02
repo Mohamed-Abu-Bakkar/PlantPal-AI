@@ -25,7 +25,7 @@ export default defineSchema({
     deviceId: v.id("iotDevices"),
     readingId: v.string(),
     soilTemperatureC: v.number(),
-    airTemperatureC: v.number(),
+    airTemperatureC: v.optional(v.number()),
     airHumidity: v.number(),
     recordedAt: v.number(),
     receivedAt: v.number(),
