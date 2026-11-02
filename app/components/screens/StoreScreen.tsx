@@ -27,7 +27,7 @@ export function StoreScreen({screen, go, back, storeTab, setStoreTab, cartCount,
     if(!isSignedIn){alert("Sign in to save your cart.");return;}
     const key=p[0].toLowerCase().replace(/[^a-z0-9]+/g,"-");
     const existing=items?.find(x=>x.productKey===key);
-    try{await setQuantity({productKey:key,name:p[0],price:p[2],emoji:p[3],quantity:(existing?.quantity||0)+delta});setCartCount(total+1);}
+    try{await setQuantity({productKey:key,name:p[0],price:p[2],emoji:p[3],quantity:(existing?.quantity||0)+delta});setCartCount(Math.max(0,total+delta));}
     catch{alert("Could not update this cart item. Please try again.");}
   };
   return (
