@@ -29,7 +29,7 @@ export default defineSchema({
     airHumidity: v.number(),
     recordedAt: v.number(),
     receivedAt: v.number(),
-  }).index("by_field_and_time", ["fieldId", "recordedAt"]).index("by_device_and_time", ["deviceId", "recordedAt"]).index("by_reading_id", ["readingId"]),
+  }).index("by_field_and_time", ["fieldId", "recordedAt"]).index("by_device_and_time", ["deviceId", "recordedAt"]).index("by_device_and_received", ["deviceId", "receivedAt"]).index("by_reading_id", ["readingId"]),
   plants: defineTable({
     ownerId: v.optional(v.string()),
     name: v.string(),
