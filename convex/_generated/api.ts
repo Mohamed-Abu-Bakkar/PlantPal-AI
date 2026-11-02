@@ -5,7 +5,7 @@
  */
 import { anyApi, componentsGeneric } from "convex/server";
 import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
-import * as plants from "../plants.js";
+import * as plants from "../plants";
 
 const fullApi: ApiFromModules<{ plants: typeof plants }> = { plants };
 export const api: FilterApi<typeof fullApi, FunctionReference<any, "public">> = anyApi;
