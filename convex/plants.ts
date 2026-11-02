@@ -12,7 +12,7 @@ export const list = query({
   returns: v.array(v.any()),
   handler: async (ctx) => {
     const identity = await requireIdentity(ctx);
-    return await ctx.db
+    const plants = await ctx.db
       .query("plants")
       .withIndex("by_owner_and_created", (q) => q.eq("ownerId", identity.tokenIdentifier))
       .order("desc")
