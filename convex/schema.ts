@@ -76,4 +76,23 @@ export default defineSchema({
     notificationsEnabled: v.optional(v.boolean()),
     updatedAt: v.number(),
   }).index("by_owner", ["ownerId"]),
+  supplyCatalog: defineTable({
+    productKey: v.string(),
+    name: v.string(),
+    description: v.string(),
+    price: v.string(),
+    category: v.string(),
+    emoji: v.string(),
+    imageStorageId: v.optional(v.id("_storage")),
+    createdBy: v.string(),
+    updatedBy: v.string(),
+    updatedAt: v.number(),
+  }).index("by_category", ["category"]).index("by_product_key", ["productKey"]),
+  supplyCatalogAudit: defineTable({
+    productId: v.id("supplyCatalog"),
+    actorId: v.string(),
+    action: v.union(v.literal("created"), v.literal("updated"), v.literal("deleted")),
+    snapshot: v.string(),
+    createdAt: v.number(),
+  }).index("by_product_and_created", ["productId", "createdAt"]),
 });
