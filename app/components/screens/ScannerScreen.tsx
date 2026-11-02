@@ -1,6 +1,9 @@
 "use client";
 
 import {useEffect, useRef, useState} from "react";
+import {useUser} from "@clerk/nextjs";
+import {useQuery} from "convex/react";
+import {api} from "../../../convex/_generated/api";
 import {Camera, ImageIcon} from "lucide-react";
 import {Header} from "../ui/Header";
 import {Photo} from "../ui/Photo";
@@ -8,6 +11,8 @@ import {SCREEN_TITLES} from "../shared/types";
 import type {Screen} from "../shared/types";
 
 export function ScannerScreen({screen, go, back, photoData, setPhotoData, aiLoading, serviceError, identifyPhoto}:{screen: Screen; go: (s: Screen) => void; back: () => void; photoData: string; setPhotoData: (v: string) => void; aiLoading: boolean; serviceError: string; identifyPhoto: () => void}) {
+  const {isLoaded,isSignedIn}=useUser();
+  const scanHistory=useQuery(api.userData.scans,isLoaded&&isSignedIn?{}:"skip");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState("");
@@ -84,6 +89,7 @@ export function ScannerScreen({screen, go, back, photoData, setPhotoData, aiLoad
         <button onClick={identifyPhoto} disabled={aiLoading} className="mt-5 w-full rounded-xl bg-[#049140] py-3 text-sm font-bold text-white">{aiLoading ? "Identifying…" : "Identify Plant"}</button>
         {serviceError && <p className="mt-2 text-center text-xs text-red-600">{serviceError}</p>}
         {selectedPhoto && <p className="mt-2 text-center text-[10px] text-gray-500">Selected: {selectedPhoto}</p>}
+        {isSignedIn && <section className="mt-6"><b className="text-sm">Recent saved scans</b>{scanHistory?.length ? <div className="mt-2 space-y-2">{scanHistory.slice(0,5).map((scan)=><div key={scan._id} className="flex items-center justify-between rounded-xl border border-[#e5ece3] bg-white p-3"><div><b className="text-xs">{scan.plantName}</b><p className="text-[10px] text-gray-500">{new Date(scan.createdAt).toLocaleDateString()}</p></div><span className="text-[10px] text-green-700">{scan.confidence != null ? scan.confidence+"% confidence" : "Saved"}</span></div>)}</div> : <p className="mt-2 text-xs text-gray-500">Your saved scans will appear here.</p>}</section>}
       </main>
     </>
   );
